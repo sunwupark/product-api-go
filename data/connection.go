@@ -24,8 +24,8 @@ type Connection interface {
 	UpdateOrder(int, int, []model.OrderItems) (model.Order, error)
 	DeleteOrder(int, int) error
 	CreateCoffee(model.Coffee) (model.Coffee, error)
-	UpsertCoffeeIngredient(model.Coffee, m0odel.Ingredient) (model.CoffeeIngredient, error)
-	GetFriends(*int) (model.Friend, error)
+	UpsertCoffeeIngredient(model.Coffee, model.Ingredient) (model.CoffeeIngredient, error)
+	GetFriends(*int) (model.Friends, error)
 	CreateFriend(model.Friend) (model.Friend, error)
 	UpdateFriend(int, model.Friend) (model.Friend, error)
 	DeleteFriend(int) error
@@ -56,7 +56,7 @@ func (c *PostgresSQL) IsConnected() (bool, error) {
 }
 
 // Friend API
-func (c *PostgresSQL) GetFriends(cafeid *int) (model.Friends, error) {
+func (c *PostgresSQL) GetFriends(friendID *int) (model.Friends, error) {
 	cos := model.Friends{}
 
 	if friendID != nil {
@@ -76,7 +76,7 @@ func (c *PostgresSQL) GetFriends(cafeid *int) (model.Friends, error) {
 
 // CreateFriend creates a new Friend in the database
 func (c *PostgresSQL) CreateFriend(friend model.Friend) (model.Friend, error) {
-	m := model.Friends{}
+	m := model.Friend{}
 
 	rows, err := c.db.NamedQuery(
 		`INSERT INTO friends (name, address, description, image, created_at, updated_at) 

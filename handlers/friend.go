@@ -83,7 +83,7 @@ func (c *Friend) CreateFriend(rw http.ResponseWriter, r *http.Request) {
 	// 단일 카페 객체로 처리
 	friend := friends[0]
 
-	createdFriend, err := c.con.CreateCafe(friend)
+	createdFriend, err := c.con.CreateFriend(friend)
 	if err != nil {
 		c.log.Error("Unable to create new cafe", "error", err)
 		http.Error(rw, fmt.Sprintf("Unable to create new cafe: %s", err.Error()), http.StatusInternalServerError)
