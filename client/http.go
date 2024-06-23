@@ -21,6 +21,41 @@ func NewHTTP(baseURL string) *HTTP {
 	return &HTTP{c, baseURL}
 }
 
+/ GetCafes retrieves a list of coffees
+func (h *HTTP) GetFriends() ([]model.Friend, error) {
+	log.Print("INFO: Executing GetFriends")
+	resp, err := h.client.Get(fmt.Sprintf("%s/friends", h.baseURL))
+	if err != nil {
+		return nil, err
+	}
+
+	friends := model.Friends{}
+	friends.FromJSON(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return friends, nil
+}
+
+// GetCoffee retrieves a single coffee
+func (h *HTTP) GetFriend(friendID int) (*model.Friend, error) {
+	resp, err := h.client.Get(fmt.Sprintf("%s/friends/%d", h.baseURL, friendID))
+	if err != nil {
+		return nil, err
+	}
+
+	friend := model.Friend{}
+	err = friend.FromJSON(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return &friend, nil
+}
+
+
+
 // GetCoffees retrieves a list of coffees
 func (h *HTTP) GetCoffees() ([]model.Coffee, error) {
 	log.Print("INFO: Executing GetCoffees")

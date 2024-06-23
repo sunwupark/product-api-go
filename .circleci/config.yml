@@ -31,7 +31,7 @@ jobs:
       - image: cimg/go:1.17
     environment:
       GO111MODULE: "on"
-    working_directory: ~/go/src/github.com/hashicorpdemoapp/product-api-go
+    working_directory: ~/go/src/github.com/sunwupark/product-api-go
     steps:
       - checkout
       - run:
@@ -47,7 +47,7 @@ jobs:
           name: build application (arm64)
           command: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./bin/arm64/product-api
       - persist_to_workspace:
-          root: ~/go/src/github.com/hashicorpdemoapp
+          root: ~/go/src/github.com/sunwupark
           paths:
             - product-api-go
 
@@ -57,10 +57,10 @@ jobs:
     resource_class: medium
     environment:
       GO111MODULE: "on"
-    working_directory: ~/go/src/github.com/hashicorpdemoapp/product-api-go
+    working_directory: ~/go/src/github.com/sunwupark/product-api-go
     steps:
       - attach_workspace:
-          at: ~/go/src/github.com/hashicorpdemoapp
+          at: ~/go/src/github.com/sunwupark
       - run:
           name: install shipyard
           command: |
@@ -72,20 +72,20 @@ jobs:
   publish-docker-release:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/go/src/github.com/hashicorpdemoapp/product-api-go
+    working_directory: ~/go/src/github.com/sunwupark/product-api-go
     steps:
       - setup_remote_docker:
           version: 19.03.14
       - install-docker-buildx
       - configure-dockerhub
       - attach_workspace:
-          at: ~/go/src/github.com/hashicorpdemoapp
+          at: ~/go/src/github.com/sunwupark
       - run:
           name: docker push
           command: |
             docker buildx inspect --bootstrap
             docker buildx build --platform linux/arm64,linux/amd64 \
-                -t hashicorpdemoapp/product-api:${CIRCLE_TAG} \
+                -t sunwupark/product-api:${CIRCLE_TAG} \
                 -f ./Dockerfile \
                 ./bin \
                 --push
@@ -93,20 +93,20 @@ jobs:
   publish-docker-db-release:
     docker:
       - image: cimg/base:stable
-    working_directory: ~/go/src/github.com/hashicorpdemoapp/product-api-go
+    working_directory: ~/go/src/github.com/sunwupark/product-api-go
     steps:
       - setup_remote_docker:
           version: 19.03.14
       - install-docker-buildx
       - configure-dockerhub
       - attach_workspace:
-          at: ~/go/src/github.com/hashicorpdemoapp
+          at: ~/go/src/github.com/sunwupark
       - run:
           name: docker push
           command: |
             docker buildx inspect --bootstrap
               docker buildx build --platform linux/arm64,linux/amd64 \
-                -t hashicorpdemoapp/product-api-db:${CIRCLE_TAG} \
+                -t sunwupark/product-api-db:${CIRCLE_TAG} \
                 -f ./database/Dockerfile \
                 ./database \
                 --push
@@ -114,10 +114,10 @@ jobs:
   publish-github-release:
     docker:
       - image: cibuilds/github:0.10
-    working_directory: ~/go/src/github.com/hashicorpdemoapp/product-api-go
+    working_directory: ~/go/src/github.com/sunwupark/product-api-go
     steps:
       - attach_workspace:
-          at: ~/go/src/github.com/hashicorpdemoapp
+          at: ~/go/src/github.com/sunwupark
       - run:
           name: "Zip binaries"
           command: |

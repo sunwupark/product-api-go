@@ -14,6 +14,50 @@ func (c *MockConnection) IsConnected() (bool, error) {
 	return true, nil
 }
 
+
+func (c *MockConnection) GetFriends(*int) (model.Friends, error) {
+	args := c.Called()
+
+	if m, ok := args.Get(0).(model.Friends); ok {
+		return m, args.Error(1)
+	}
+
+	return nil, args.Error(1)
+}
+
+func (c *MockConnection) CreateFriend(friend model.Friend) (model.Friend, error) {
+	args := c.Called()
+
+	if m, ok := args.Get(0).(model.Friend); ok {
+		return m, args.Error(1)
+	}
+
+	return model.Friend{}, args.Error(1)
+}
+
+func (c *MockConnection) UpdateFriend(friendID int, friend model.Friend) (model.Friend, error) {
+	args := c.Called()
+
+	if m, ok := args.Get(0).(model.Friend); ok {
+		return m, args.Error(1)
+	}
+
+	return model.Friend{}, args.Error(1)
+}
+
+func (c *MockConnection) DeleteFriend(friendID int) error {
+	args := c.Called()
+
+	if err, ok := args.Get(0).(error); ok {
+		return err
+	}
+
+	return nil
+}
+
+
+
+
 // GetCoffees -
 func (c *MockConnection) GetCoffees(*int) (model.Coffees, error) {
 	args := c.Called()

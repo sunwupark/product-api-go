@@ -100,6 +100,13 @@ func main() {
 	r.HandleFunc("/health/livez", healthHandler.Liveness).Methods("GET")
 	r.HandleFunc("/health/readyz", healthHandler.Readiness).Methods("GET")
 
+	friendHandler := handlers.NewFriend(db, logger)
+	r.Handle("/friends", friendHandler).Methods("GET")
+	r.Handle("/friends/{id:[0-9]+}", friendHandler).Methods("GET")
+	r.HandleFunc("/friends", friendHandler.CreateFriend).Methods("POST")
+	r.HandleFunc("/friends/{id:[0-9]+}", friendHandler.UpdateFriend).Methods("PUT")
+	r.HandleFunc("/friends/{id:[0-9]+}", friendHandler.DeleteFriend).Methods("DELETE")
+
 	coffeeHandler := handlers.NewCoffee(db, logger)
 	r.Handle("/coffees", coffeeHandler).Methods("GET")
 	r.Handle("/coffees/{id:[0-9]+}", coffeeHandler).Methods("GET")

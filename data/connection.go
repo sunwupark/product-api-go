@@ -24,7 +24,11 @@ type Connection interface {
 	UpdateOrder(int, int, []model.OrderItems) (model.Order, error)
 	DeleteOrder(int, int) error
 	CreateCoffee(model.Coffee) (model.Coffee, error)
-	UpsertCoffeeIngredient(model.Coffee, model.Ingredient) (model.CoffeeIngredient, error)
+	UpsertCoffeeIngredient(model.Coffee, m0odel.Ingredient) (model.CoffeeIngredient, error)
+	GetFriends(*int) (model.Friend, error)
+	CreateFriend(model.Friend) (model.Friend, error)
+	UpdateFriend(int, model.Friend) (model.Friend, error)
+	DeleteFriend(int) error
 }
 
 type PostgresSQL struct {
@@ -50,6 +54,108 @@ func (c *PostgresSQL) IsConnected() (bool, error) {
 
 	return true, nil
 }
+
+// Friend API
+func (c *PostgresSQL) GetFriends(cafeid *int) (model.Friends, error) {
+	cos := model.Friends{}
+
+	if friendID != nil {
+		err := c.db.Select(&cos, "SELECT * FROM friends WHERE id = $1", friendID)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		err := c.db.Select(&cos, "SELECT * FROM friends")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return cos, nil
+}
+
+// CreateFriend creates a new Friend in the database
+func (c *PostgresSQL) CreateFriend(friend model.Friend) (model.Friend, error) {
+	m := model.Friends{}
+
+	rows, err := c.db.NamedQuery(
+		`INSERT INTO friends (name, address, description, image, created_at, updated_at) 
+		VALUES(:name, :address, :description, :image, now(), now()) 
+		RETURNING id;`, map[string]interface{}{
+			"name":        friend.Name,
+			"address":     friend.Address,
+			"description": friend.Description,
+			"image":       friend.Image,
+		})
+	if err != nil {
+		return m, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.StructScan(&m)
+		if err != nil {
+			return m, err
+		}
+	}
+
+	return m, nil
+}
+
+func (c *PostgresSQL) UpdateFriend(friendID int, friend model.Friend) (model.Friend, error) {
+	m := model.Friend{}
+
+	_, err := c.db.NamedExec(
+		`UPDATE friends 
+        SET name = :name, address = :address, description = :description, image = :image, updated_at = now()
+        WHERE id = :id;`, map[string]interface{}{
+			"id":          friendID,
+			"name":        friend.Name,
+			"address":     friend.Address,
+			"description": friend.Description,
+			"image":       friend.Image,
+		})
+
+	if err != nil {
+		return m, err
+	}
+
+	m.ID = friendID
+	m.Name = friend.Name
+	m.Address = friend.Address
+	m.Description = friend.Description
+	m.Image = friend.Image
+
+	return m, nil
+}
+
+// DeleteOrder deletes an existing friend in the database
+func (c *PostgresSQL) DeleteFriend(friendID int) error {
+	tx := c.db.MustBegin()
+
+	// remove existing items from order
+	_, err := tx.NamedExec(
+		`DELETE FROM friends WHERE id = :friend_id `, map[string]interface{}{
+			"friend_id": friendID,
+		})
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 
 // GetCoffees returns all coffees from the database
 func (c *PostgresSQL) GetCoffees(coffeeid *int) (model.Coffees, error) {
