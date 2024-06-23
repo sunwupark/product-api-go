@@ -35,7 +35,7 @@ func (c *Friend) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if vars["id"] != "" {
 		cId, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			c.log.Error("Cafe provided could not be converted to an integer", "error", err)
+			c.log.Error("friend provided could not be converted to an integer", "error", err)
 			http.Error(rw, "Unable to list ingredients", http.StatusInternalServerError)
 			return
 		}
@@ -60,9 +60,9 @@ func (c *Friend) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	rw.Write(d)
 }
 
-// CreateCafe creates a new cafe
+// Createfriend creates a new friend
 func (c *Friend) CreateFriend(rw http.ResponseWriter, r *http.Request) {
-	c.log.Info("Handle Cafe | CreateFriend")
+	c.log.Info("Handle friend | CreateFriend")
 
 	var friends []model.Friend
 
@@ -85,17 +85,18 @@ func (c *Friend) CreateFriend(rw http.ResponseWriter, r *http.Request) {
 
 	createdFriend, err := c.con.CreateFriend(friend)
 	if err != nil {
-		c.log.Error("Unable to create new cafe", "error", err)
-		http.Error(rw, fmt.Sprintf("Unable to create new cafe: %s", err.Error()), http.StatusInternalServerError)
+		c.log.Error("Unable to create new friend", "error", err)
+		http.Error(rw, fmt.Sprintf("Unable to create new friend: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
 
 	d, err := createdFriend.ToJSON()
 	if err != nil {
-		c.log.Error("Unable to convert cafe to JSON", "error", err)
-		http.Error(rw, "Unable to create new cafe", http.StatusInternalServerError)
+		c.log.Error("Unable to convert friend to JSON", "error", err)
+		http.Error(rw, "Unable to create new friend", http.StatusInternalServerError)
 		return
 	}
+	c.log.Info("Sending d", "d", d)
 
 	rw.Write(d)
 }
@@ -139,13 +140,13 @@ func (c *Friend) UpdateFriend(rw http.ResponseWriter, r *http.Request) {
 
 // DeleteFriend deletes a user Friend
 func (c *Friend) DeleteFriend(rw http.ResponseWriter, r *http.Request) {
-	c.log.Info("Handle Cafes | DeleteFriend")
+	c.log.Info("Delete Friend | DeleteFriend")
 
 	vars := mux.Vars(r)
 
 	friendID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		c.log.Error("cafeID provided could not be converted to an integer", "error", err)
+		c.log.Error("friendID provided could not be converted to an integer", "error", err)
 		http.Error(rw, "Unable to delete order", http.StatusInternalServerError)
 		return
 	}
